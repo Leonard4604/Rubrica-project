@@ -5,55 +5,74 @@ import model.Persona;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
+import java.util.UUID;
 
 public class PersonaPersistence {
-    public static void saveToFile(String fileName, List<Persona> personas) {
+    public static void saveToFile(String directory, Persona persona) {
+        String fileName = generateFileName(directory, persona);
         try (PrintStream ps = new PrintStream(new FileOutputStream(fileName))) {
-            for (Persona persona : personas) {
-                ps.printf("%s;%s;%s;%s;%d%n",
-                        persona.getNome(),
-                        persona.getCognome(),
-                        persona.getIndirizzo(),
-                        persona.getTelefono(),
-                        persona.getEta());
-            }
+            ps.printf("%s;%s;%s;%s;%d%n",
+                    persona.getNome(),
+                    persona.getCognome(),
+                    persona.getIndirizzo(),
+                    persona.getTelefono(),
+                    persona.getEta());
         } catch (FileNotFoundException e) {
             System.err.println("Error saving data: " + e.getMessage());
         }
     }
 
-    public static List<Persona> loadFromFile(String fileName) {
+    public static List<Persona> loadFromDirectory(String directory) {
         List<Persona> personas = new ArrayList<>();
-        File file = new File(fileName);
-        System.out.println("Looking for file at: " + file.getAbsolutePath());
+        File dir = new File(directory);
+        File[] files = dir.listFiles((d, name) -> name.endsWith(".txt"));
 
-        if (!file.exists()) {
-            System.out.println("File does not exist.");
-            return personas;
-        }
-
-        try (Scanner scanner = new Scanner(file)) {
-            while (scanner.hasNextLine()) {
-                String line = scanner.nextLine();
-                System.out.println("Reading line: " + line);
-                String[] parts = line.split(";");
-                if (parts.length == 5) {
-                    String firstName = parts[0];
-                    String lastName = parts[1];
-                    String address = parts[2];
-                    String phoneNumber = parts[3];
-                    int age = Integer.parseInt(parts[4]);
-
-                    personas.add(new Persona(firstName, lastName, address, phoneNumber, age));
-                } else {
-                    System.out.println("Skipping invalid line: " + line);
+        if (files != null) {
+            for (File file : files) {
+                try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+                    String line = reader.readLine();
+                    if (line != null) {
+                        String[] parts = line.split(";");
+                        if (parts.length == 5) {
+                            String nome = parts[0];
+                            String cognome = parts[1];
+                            String indirizzo = parts[2];
+                            String telefono = parts[3];
+                            int eta = Integer.parseInt(parts[4]);
+                            personas.add(new Persona(nome, cognome, indirizzo, telefono, eta));
+                        }
+                    }
+                } catch (IOException e) {
+                    System.err.println("Error reading file: " + file.getName() + " - " + e.getMessage());
                 }
             }
-        } catch (FileNotFoundException e) {
-            System.err.println("Error loading data: " + e.getMessage());
         }
-        System.out.println("Loaded personas: " + personas.size());
         return personas;
+    }
+
+    public static void deleteFile(String directory, Persona persona) {
+        File dir = new File(directory);
+        File[] files = dir.listFiles((d, name) -> name.startsWith(generateFileNamePrefix(persona)));
+
+        if (files != null) {
+            for (File file : files) {
+                if (!file.delete()) {
+                    System.err.println("Error deleting file: " + file.getName());
+                }
+            }
+        }
+    }
+
+    private static String generateFileName(String directory, Persona persona) {
+        String sanitizedNome = persona.getNome().replaceAll("\\s+", "_");
+        String sanitizedCognome = persona.getCognome().replaceAll("\\s+", "_");
+        String uniqueId = UUID.randomUUID().toString();
+        return directory + File.separator + sanitizedNome + "-" + sanitizedCognome + "-" + uniqueId + ".txt";
+    }
+
+    private static String generateFileNamePrefix(Persona persona) {
+        String sanitizedNome = persona.getNome().replaceAll("\\s+", "_");
+        String sanitizedCognome = persona.getCognome().replaceAll("\\s+", "_");
+        return sanitizedNome + "-" + sanitizedCognome + "-";
     }
 }

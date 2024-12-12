@@ -3,25 +3,27 @@ package controller;
 import persistence.PersonaPersistence;
 import model.Persona;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
 public class PersonaController {
-    private static final String FILE_NAME = "informazioni.txt";
+    private static final String DIRECTORY_NAME = "informazioni";
 
     private List<Persona> personas;
 
     public PersonaController() {
-        this.personas = PersonaPersistence.loadFromFile(FILE_NAME);
-        if (this.personas == null) {
-            this.personas = new ArrayList<>();
+        File dir = new File(DIRECTORY_NAME);
+        if (!dir.exists()) {
+            dir.mkdir();
         }
+        this.personas = PersonaPersistence.loadFromDirectory(DIRECTORY_NAME);
     }
 
     public void addPersona(Persona persona) {
         personas.add(persona);
         System.out.println("Persona added: " + persona);
-        saveData();
+        PersonaPersistence.saveToFile(DIRECTORY_NAME, persona);
     }
 
     public List<Persona> getAllPersonas() {
@@ -40,9 +42,10 @@ public class PersonaController {
     public boolean updatePersona(String nome, Persona updatedPersona) {
         for (int i = 0; i < personas.size(); i++) {
             if (personas.get(i).getNome().equalsIgnoreCase(nome)) {
-                personas.set(i, updatedPersona);
+                Persona oldPersona = personas.set(i, updatedPersona);
+                PersonaPersistence.deleteFile(DIRECTORY_NAME, oldPersona);
+                PersonaPersistence.saveToFile(DIRECTORY_NAME, updatedPersona);
                 System.out.println("Persona updated: " + updatedPersona);
-                saveData();
                 return true;
             }
         }
@@ -52,16 +55,12 @@ public class PersonaController {
     public boolean deletePersona(String nome) {
         for (int i = 0; i < personas.size(); i++) {
             if (personas.get(i).getNome().equalsIgnoreCase(nome)) {
-                personas.remove(i);
+                Persona persona = personas.remove(i);
+                PersonaPersistence.deleteFile(DIRECTORY_NAME, persona);
                 System.out.println("Persona deleted: " + nome);
-                saveData();
                 return true;
             }
         }
         return false;
-    }
-
-    private void saveData() {
-        PersonaPersistence.saveToFile(FILE_NAME, personas);
     }
 }

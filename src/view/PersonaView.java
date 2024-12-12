@@ -27,13 +27,10 @@ public class PersonaView extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
-        JPanel topPanel = new JPanel(new GridLayout(3, 1, 10, 10));
-
         tableModel = new DefaultTableModel(new String[]{"Nome", "Cognome", "Telefono"}, 0);
         table = new JTable(tableModel);
         JScrollPane tableScrollPane = new JScrollPane(table);
 
-        add(topPanel, BorderLayout.NORTH);
         add(tableScrollPane, BorderLayout.CENTER);
 
         JPanel bottomPanel = new JPanel(new FlowLayout());
@@ -61,17 +58,15 @@ public class PersonaView extends JFrame {
         newPersonaFrame.setSize(400, 400);
         newPersonaFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
-        JPanel newPersonaPanel = new JPanel(new GridLayout(7, 2, 10, 10));
-
+        JPanel newPersonaPanel = new JPanel(new GridLayout(6, 2, 10, 10));
         JTextField newTxtNome = new JTextField(10);
         JTextField newTxtCognome = new JTextField(10);
-        JTextField newTxtEta = new JTextField(5);
         JTextField newTxtTelefono = new JTextField(10);
         JTextField newTxtIndirizzo = new JTextField(20);
+        JTextField newTxtEta = new JTextField(5);
 
         JButton btnSalva = new JButton("Salva");
-        btnSalva.addActionListener(e -> salvaNewPersona(newTxtNome, newTxtCognome, newTxtEta, newTxtTelefono, newTxtIndirizzo, newPersonaFrame));
-
+        btnSalva.addActionListener(e -> salvaNewPersona(newTxtNome, newTxtCognome, newTxtTelefono, newTxtIndirizzo, newTxtEta, newPersonaFrame));
         JButton btnAnnulla = new JButton("Annulla");
         btnAnnulla.addActionListener(e -> newPersonaFrame.dispose());
 
@@ -79,12 +74,12 @@ public class PersonaView extends JFrame {
         newPersonaPanel.add(newTxtNome);
         newPersonaPanel.add(new JLabel("Cognome:"));
         newPersonaPanel.add(newTxtCognome);
-        newPersonaPanel.add(new JLabel("Eta:"));
-        newPersonaPanel.add(newTxtEta);
         newPersonaPanel.add(new JLabel("Telefono:"));
         newPersonaPanel.add(newTxtTelefono);
         newPersonaPanel.add(new JLabel("Indirizzo:"));
         newPersonaPanel.add(newTxtIndirizzo);
+        newPersonaPanel.add(new JLabel("Eta:"));
+        newPersonaPanel.add(newTxtEta);
         newPersonaPanel.add(btnSalva);
         newPersonaPanel.add(btnAnnulla);
 
@@ -92,108 +87,101 @@ public class PersonaView extends JFrame {
         newPersonaFrame.setVisible(true);
     }
 
-    private void salvaNewPersona(JTextField newTxtNome, JTextField newTxtCognome, JTextField newTxtEta, JTextField newTxtTelefono, JTextField newTxtIndirizzo, JFrame newPersonaFrame) {
+    private void salvaNewPersona(JTextField nomeField, JTextField cognomeField, JTextField telefonoField, JTextField indirizzoField, JTextField etaField, JFrame frame) {
         try {
-            String nome = newTxtNome.getText().trim();
-            String cognome = newTxtCognome.getText().trim();
-            String telefono = newTxtTelefono.getText().trim();
-            String indirizzo = newTxtIndirizzo.getText().trim();
-            int eta = Integer.parseInt(newTxtEta.getText().trim());
+            String nome = nomeField.getText().trim();
+            String cognome = cognomeField.getText().trim();
+            String telefono = telefonoField.getText().trim();
+            String indirizzo = indirizzoField.getText().trim();
+            int eta = Integer.parseInt(etaField.getText().trim());
+
             Persona persona = new Persona(nome, cognome, indirizzo, telefono, eta);
             controller.addPersona(persona);
             JOptionPane.showMessageDialog(this, "Persona aggiunta con successo!");
             refreshTable();
-            newPersonaFrame.dispose();
-        } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(this, "Eta invidalida. Per favore inserisci un eta.");
+            frame.dispose();
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Errore: l'età deve essere un numero intero.");
         }
     }
 
     private void openUpdatePersonaWindow() {
         int selectedRow = table.getSelectedRow();
         if (selectedRow != -1) {
-            String selectedNome = (String) tableModel.getValueAt(selectedRow, 0);
-            Persona selectedPersona = controller.getPersonaByNome(selectedNome);
+            String nome = (String) tableModel.getValueAt(selectedRow, 0);
+            Persona persona = controller.getPersonaByNome(nome);
 
-            JFrame updatePersonaFrame = new JFrame("editor-persona");
-            updatePersonaFrame.setSize(400, 400);
-            updatePersonaFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+            JFrame updateFrame = new JFrame("editor-persona");
+            updateFrame.setSize(400, 400);
+            updateFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
-            JPanel updatePersonaPanel = new JPanel(new GridLayout(7, 2, 10, 10));
+            JPanel updatePanel = new JPanel(new GridLayout(6, 2, 10, 10));
+            JTextField txtNome = new JTextField(persona.getNome());
+            JTextField txtCognome = new JTextField(persona.getCognome());
+            JTextField txtTelefono = new JTextField(persona.getTelefono());
+            JTextField txtIndirizzo = new JTextField(persona.getIndirizzo());
+            JTextField txtEta = new JTextField(String.valueOf(persona.getEta()));
 
-            JTextField txtUpdateNome = new JTextField(selectedPersona.getNome(), 10);
-            JTextField txtUpdateCognome = new JTextField(selectedPersona.getCognome(), 10);
-            JTextField txtUpdateEta = new JTextField(String.valueOf(selectedPersona.getEta()), 5);
-            JTextField txtUpdateTelefono = new JTextField(selectedPersona.getTelefono(), 10);
-            JTextField txtUpdateIndirizzo = new JTextField(selectedPersona.getIndirizzo(), 20);
+            JButton btnSalva = new JButton("Salva");
+            btnSalva.addActionListener(e -> salvaUpdatedPersona(txtNome, txtCognome, txtTelefono, txtIndirizzo, txtEta, persona, updateFrame));
+            JButton btnAnnulla = new JButton("Annulla");
+            btnAnnulla.addActionListener(e -> updateFrame.dispose());
 
-            JButton btnSalvaUpdate = new JButton("Salva");
-            btnSalvaUpdate.addActionListener(e -> salvaUpdatedPersona(txtUpdateNome, txtUpdateCognome, txtUpdateEta, txtUpdateTelefono, txtUpdateIndirizzo, selectedPersona, updatePersonaFrame));
+            updatePanel.add(new JLabel("Nome:"));
+            updatePanel.add(txtNome);
+            updatePanel.add(new JLabel("Cognome:"));
+            updatePanel.add(txtCognome);
+            updatePanel.add(new JLabel("Telefono:"));
+            updatePanel.add(txtTelefono);
+            updatePanel.add(new JLabel("Indirizzo:"));
+            updatePanel.add(txtIndirizzo);
+            updatePanel.add(new JLabel("Eta:"));
+            updatePanel.add(txtEta);
+            updatePanel.add(btnSalva);
+            updatePanel.add(btnAnnulla);
 
-            JButton btnAnnullaUpdate = new JButton("Annulla");
-            btnAnnullaUpdate.addActionListener(e -> updatePersonaFrame.dispose());
-
-            updatePersonaPanel.add(new JLabel("Nome:"));
-            updatePersonaPanel.add(txtUpdateNome);
-            updatePersonaPanel.add(new JLabel("Cognome:"));
-            updatePersonaPanel.add(txtUpdateCognome);
-            updatePersonaPanel.add(new JLabel("Eta:"));
-            updatePersonaPanel.add(txtUpdateEta);
-            updatePersonaPanel.add(new JLabel("Telefono:"));
-            updatePersonaPanel.add(txtUpdateTelefono);
-            updatePersonaPanel.add(new JLabel("Indirizzo:"));
-            updatePersonaPanel.add(txtUpdateIndirizzo);
-            updatePersonaPanel.add(btnSalvaUpdate);
-            updatePersonaPanel.add(btnAnnullaUpdate);
-
-            updatePersonaFrame.add(updatePersonaPanel);
-            updatePersonaFrame.setVisible(true);
+            updateFrame.add(updatePanel);
+            updateFrame.setVisible(true);
         } else {
-            JOptionPane.showMessageDialog(this, "Per favore selezionare una persona da modificare!");
+            JOptionPane.showMessageDialog(this, "Per favore seleziona una persona da modificare!");
         }
     }
 
-    private void salvaUpdatedPersona(JTextField txtNome, JTextField txtCognome, JTextField txtEta, JTextField txtTelefono, JTextField txtIndirizzo, Persona oldPersona, JFrame updatePersonaFrame) {
+    private void salvaUpdatedPersona(JTextField nomeField, JTextField cognomeField, JTextField telefonoField, JTextField indirizzoField, JTextField etaField, Persona persona, JFrame frame) {
         try {
-            String nome = txtNome.getText().trim();
-            String cognome = txtCognome.getText().trim();
-            String telefono = txtTelefono.getText().trim();
-            String indirizzo = txtIndirizzo.getText().trim();
-            int eta = Integer.parseInt(txtEta.getText().trim());
-            Persona updatedPersona = new Persona(nome, cognome, indirizzo, telefono, eta);
+            String nome = nomeField.getText().trim();
+            String cognome = cognomeField.getText().trim();
+            String telefono = telefonoField.getText().trim();
+            String indirizzo = indirizzoField.getText().trim();
+            int eta = Integer.parseInt(etaField.getText().trim());
 
-            controller.updatePersona(oldPersona.getNome(), updatedPersona);
-            JOptionPane.showMessageDialog(this, "Persona modificata con successo!");
+            Persona updatedPersona = new Persona(nome, cognome, indirizzo, telefono, eta);
+            controller.updatePersona(persona.getNome(), updatedPersona);
+            JOptionPane.showMessageDialog(this, "Persona aggiornata con successo!");
             refreshTable();
-            updatePersonaFrame.dispose();
-        } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(this, "Invalid eta. Please enter a valid number.");
+            frame.dispose();
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Errore: l'età deve essere un numero intero.");
         }
     }
 
     private void deletePersona() {
         int selectedRow = table.getSelectedRow();
-        if (selectedRow == -1) {
-            JOptionPane.showMessageDialog(this, "Per favore seleziona una persona da eliminare!");
-        } else {
-            String selectedNome = (String) tableModel.getValueAt(selectedRow, 0);
-            String selectedCognome = (String) tableModel.getValueAt(selectedRow, 1);
-            int confirmation = JOptionPane.showConfirmDialog(this,
-                    "Eliminare la persona " + selectedNome + " " + selectedCognome + "?",
-                    "Conferma Eliminazione", JOptionPane.YES_NO_OPTION);
-
+        if (selectedRow != -1) {
+            String nome = (String) tableModel.getValueAt(selectedRow, 0);
+            int confirmation = JOptionPane.showConfirmDialog(this, "Eliminare la persona " + nome + "?", "Conferma eliminazione", JOptionPane.YES_NO_OPTION);
             if (confirmation == JOptionPane.YES_OPTION) {
-                boolean success = controller.deletePersona(selectedNome);
-                if (success) {
+                if (controller.deletePersona(nome)) {
                     JOptionPane.showMessageDialog(this, "Persona eliminata con successo!");
                     refreshTable();
                 } else {
-                    JOptionPane.showMessageDialog(this, "Errore durante l'eliminazione della persona.");
+                    JOptionPane.showMessageDialog(this, "Errore durante l'eliminazione.");
                 }
             }
+        } else {
+            JOptionPane.showMessageDialog(this, "Per favore seleziona una persona da eliminare!");
         }
     }
-
 
     private void refreshTable() {
         tableModel.setRowCount(0);
