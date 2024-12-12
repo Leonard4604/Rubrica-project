@@ -1,7 +1,7 @@
 package dao;
 
 import model.Persona;
-import util.DatabaseConnection;
+import persistence.DatabaseManager;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -16,7 +16,7 @@ public class PersonaDAO {
 
     public boolean addPersona(Persona persona) {
         String query = "INSERT INTO persona (nome, cognome, indirizzo, telefono, eta) VALUES (?, ?, ?, ?, ?)";
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = DatabaseManager.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
 
             stmt.setString(1, persona.getNome());
@@ -44,7 +44,7 @@ public class PersonaDAO {
         List<Persona> personas = new ArrayList<>();
         String query = "SELECT * FROM persona";
 
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = DatabaseManager.getConnection();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(query)) {
 
@@ -70,7 +70,7 @@ public class PersonaDAO {
 
     public boolean updatePersona(int id, Persona updatedPersona) {
         String query = "UPDATE persona SET nome = ?, cognome = ?, indirizzo = ?, telefono = ?, eta = ? WHERE id = ?";
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = DatabaseManager.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
 
             stmt.setString(1, updatedPersona.getNome());
@@ -89,7 +89,7 @@ public class PersonaDAO {
 
     public boolean deletePersona(int id) {
         String query = "DELETE FROM persona WHERE id = ?";
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = DatabaseManager.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
 
             stmt.setInt(1, id);
@@ -102,7 +102,7 @@ public class PersonaDAO {
 
     public Persona getPersonaById(int id) {
         String query = "SELECT * FROM persona WHERE id = ?";
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = DatabaseManager.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
 
             stmt.setInt(1, id);
