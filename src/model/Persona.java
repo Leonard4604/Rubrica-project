@@ -1,6 +1,7 @@
 package model;
 
 public class Persona {
+    private int id;
     private String nome;
     private String cognome;
     private String indirizzo;
@@ -10,12 +11,21 @@ public class Persona {
     public Persona() {
     }
 
-    public Persona(String nome, String cognome, String indirizzo, String telefono, int eta) {
+    public Persona(int id, String nome, String cognome, String indirizzo, String telefono, int eta) {
+        this.id = id;
         this.nome = nome;
         this.cognome = cognome;
         this.indirizzo = indirizzo;
         this.telefono = telefono;
         this.eta = eta;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getNome() {
@@ -61,7 +71,8 @@ public class Persona {
     @Override
     public String toString() {
         return "Persona {" +
-                "nome='" + nome + '\'' +
+                "id=" + id +
+                ", nome='" + nome + '\'' +
                 ", cognome='" + cognome + '\'' +
                 ", indirizzo='" + indirizzo + '\'' +
                 ", telefono='" + telefono + '\'' +
