@@ -8,7 +8,7 @@ import java.sql.SQLException;
 import java.util.Properties;
 
 public class DatabaseConnection {
-    private static final String CONFIG_FILE = "DatabaseConfig.properties";
+    private static final String CONFIG_FILE = "credenziali_database.properties";
     private static String URL;
     private static String USER;
     private static String PASSWORD;

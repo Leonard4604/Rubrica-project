@@ -18,16 +18,16 @@ public class DatabaseManager {
             Properties properties = new Properties();
 
             String jarDir = System.getProperty("user.dir");
-            File propertiesFile = new File(jarDir, "DatabaseConfig.properties");
+            File propertiesFile = new File(jarDir, "credenziali_database.properties");
 
             InputStream inputStream;
 
             if (propertiesFile.exists()) {
                 inputStream = new FileInputStream(propertiesFile);
             } else {
-                inputStream = DatabaseManager.class.getClassLoader().getResourceAsStream("DatabaseConfig.properties");
+                inputStream = DatabaseManager.class.getClassLoader().getResourceAsStream("credenziali_database.properties");
                 if (inputStream == null) {
-                    throw new IOException("Property file 'DatabaseConfig.properties' not found in the same directory as the JAR or in the resources folder");
+                    throw new IOException("Property file 'credenziali_database.properties' not found in the same directory as the JAR or in the resources folder");
                 }
             }
 
